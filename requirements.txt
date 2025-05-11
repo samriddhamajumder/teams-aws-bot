@@ -1,0 +1,20 @@
+python-dotenv>=1.0.0
+# Microsoft Bot Framework SDK
+botbuilder-core
+botbuilder-schema
+
+# Flask Web App
+flask
+
+# NLP + Ollama integration
+requests
+python-dotenv
+
+# AWS SDK and Terraform subprocesses
+boto3
+
+# CrewAI and Tools
+crewai
+pydantic
+
+# (Optional) Add asyncio if your environment doesn't already support it

@@ -1,0 +1,57 @@
+<!-- templates/upload.html -->
+<html>
+  <head>
+    <title>Upload to S3</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://statics.teams.cdn.office.net/sdk/v2.19.0/js/MicrosoftTeams.min.js"></script>
+    <script>
+      microsoftTeams.app.initialize();
+    </script>
+    <style>
+      body {
+        font-family: 'Segoe UI', sans-serif;
+        padding: 20px;
+        background-color: #f9f9f9;
+      }
+      form {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+      input, select, button {
+        margin-bottom: 12px;
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+      }
+      h2 {
+        margin-top: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <form method="post" enctype="multipart/form-data">
+      <h2>📤 Upload File to S3</h2>
+      <label>Bucket Name:</label><input name="bucket_name" required>
+      <label>Key Prefix (optional):</label><input name="prefix">
+      <label>ACL:</label>
+      <select name="acl">
+        <option value="private">Private</option>
+        <option value="public-read">Public Read</option>
+      </select>
+      <label>Storage Class:</label>
+      <select name="storage_class">
+        <option value="STANDARD">Standard</option>
+        <option value="INTELLIGENT_TIERING">Intelligent Tiering</option>
+        <option value="STANDARD_IA">Infrequent Access</option>
+        <option value="GLACIER">Glacier</option>
+      </select>
+      <label>Select File:</label><input type="file" name="file" required>
+      <br>
+      <button type="submit">🚀 Upload</button>
+    </form>
+  </body>
+</html>
