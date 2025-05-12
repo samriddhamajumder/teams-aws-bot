@@ -10,6 +10,9 @@ from botbuilder.schema import Activity
 from dotenv import load_dotenv
 from bot.teams_bot import TeamsBot
 import logging
+import threading
+import time
+from bot.knowledge_base import load_knowledge_base
 
 #from botbuilder.integration.flask import FlaskAdapter
 
@@ -47,7 +50,7 @@ def download_static(filename):
 # Error handler for the adapter (optional: logs errors and sends trace messages if needed)
 async def on_error(context, error):
     print(f"Bot error: {error}")
-    await context.send_activity("Sorry, something went wrong processing your request.")
+    await context.send_activity("❌ I faced an unexpected error. Please try again later or contact support.")
 
 adapter.on_turn_error = on_error
 
@@ -152,11 +155,25 @@ def upload_page():
     html = render_template("upload.html")
     return wrap_html(html)
 
+def cleanup_pem_files():
+    pem_folder = "./static/"
+    while True:
+        for file in os.listdir(pem_folder):
+            if file.endswith(".pem"):
+                file_path = os.path.join(pem_folder, file)
+                file_age = time.time() - os.path.getmtime(file_path)
+                if file_age > 600:   # 600 sec = 10 mins
+                    os.remove(file_path)
+        time.sleep(300)  # check every 5 min
 
-
+# Start background cleanup
+threading.Thread(target=cleanup_pem_files, daemon=True).start()
 
 
 
 if __name__ == "__main__":
+    threading.Thread(target=cleanup_pem_files, daemon=True).start()
     print("🚀 Flask bot is running on http://localhost:3978")
     app.run(host="0.0.0.0", port=3978, debug=True)
+    logger.info("TikoGen AI Cloud Assistant Flask bot started successfully ✅")
+

@@ -26,6 +26,7 @@ def ec2_launch_card():
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {
                 "type": "ColumnSet",
                 "columns": [
@@ -154,6 +155,7 @@ def vpc_full_creation_card():
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "🌐 Create a New VPC", "weight": "Bolder", "size": "Large"},
             {"type": "TextBlock", "text": "Enter VPC Name", "weight": "Bolder"},
             {"type": "Input.Text", "id": "vpc_name", "placeholder": "Enter VPC name"},
@@ -196,6 +198,7 @@ def s3_create_bucket_card():
         "version": "1.4",
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "🪣 Create New S3 Bucket", "weight": "Bolder", "size": "Medium"},
 
             {"type": "TextBlock", "text": "Bucket Name (must be globally unique):"},
@@ -263,6 +266,7 @@ def s3_upload_file_card(bucket_list):
         "version": "1.4",
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "📤 Upload File to S3", "weight": "Bolder", "size": "Medium"},
 
             {"type": "TextBlock", "text": "Select Bucket:"},
@@ -325,6 +329,7 @@ def s3_download_file_card(bucket_list):
         "version": "1.4",
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "📥 Download File from S3", "weight": "Bolder", "size": "Medium"},
 
             {"type": "TextBlock", "text": "Select Bucket:"},
@@ -355,6 +360,7 @@ def s3_bucket_success_card(bucket_name, region, versioning, encryption, block_pu
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "size": "Large", "weight": "Bolder", "text": "✅ S3 Bucket Created Successfully"},
             {"type": "FactSet", "facts": [
                 {"title": "🪣 Bucket Name:", "value": bucket_name},
@@ -374,6 +380,7 @@ def s3_upload_success_card(bucket_name, key, acl, storage_class):
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "📁 File Uploaded to S3", "weight": "Bolder", "size": "Large"},
             {"type": "FactSet", "facts": [
                 {"title": "🪣 Bucket:", "value": bucket_name},
@@ -391,6 +398,7 @@ def s3_download_link_card(bucket_name, object_key, url, expires_in=3600):
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "🔗 S3 Presigned Download Link", "weight": "Bolder", "size": "Large"},
             {"type": "FactSet", "facts": [
                 {"title": "🪣 Bucket:", "value": bucket_name},
@@ -413,6 +421,7 @@ def s3_select_object_card(bucket_name, object_list):
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": f"📄 Select File from `{bucket_name}`", "weight": "Bolder", "size": "Medium"},
             {
                 "type": "Input.ChoiceSet",
@@ -441,6 +450,7 @@ def iam_create_user_card(policy_list: list):
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "🔐 Create IAM User", "weight": "Bolder", "size": "Medium"},
             {"type": "Input.Text", "id": "username", "placeholder": "Enter IAM username"},
 
@@ -484,6 +494,7 @@ def iam_create_group_card(policy_list: list):
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "👥 Create IAM Group", "weight": "Bolder", "size": "Medium"},
             {"type": "Input.Text", "id": "group_name", "placeholder": "Enter group name"},
 
@@ -511,6 +522,7 @@ def iam_attach_user_group_card(user_list: list, group_list: list):
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "📎 Attach User to Group", "weight": "Bolder", "size": "Medium"},
 
             {"type": "TextBlock", "text": "Select IAM User:"},
@@ -544,6 +556,7 @@ def iam_attach_detach_policy_card(users: list, groups: list, policies: list):
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "📜 Attach/Detach Policy", "weight": "Bolder", "size": "Medium"},
 
             {"type": "TextBlock", "text": "Select User (optional):"},
@@ -597,6 +610,7 @@ def iam_inline_policy_card(entity_list: list):
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "📄 Create Inline Policy", "weight": "Bolder", "size": "Medium"},
 
             {"type": "TextBlock", "text": "Entity Type:"},
@@ -637,6 +651,7 @@ def iam_create_role_card(policy_list: list):
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "🛡️ Create IAM Role", "weight": "Bolder", "size": "Medium"},
 
             {"type": "Input.Text", "id": "role_name", "placeholder": "Enter role name"},
@@ -668,6 +683,7 @@ def iam_delete_card(user_list, group_list, role_list):
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "🗑️ Delete IAM Entity", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "Entity Type:"},
             {
@@ -704,6 +720,7 @@ def iam_enable_mfa_card_step1(user_list: list):
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "🔐 Start MFA Setup for IAM User", "weight": "Bolder", "size": "large"},
             {"type": "TextBlock", "text": "Select IAM User:"},
             {
@@ -724,6 +741,7 @@ def iam_enable_mfa_card_step2(username: str, serial: str, seed_base32: str):
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": f"🔐 Enable MFA for {username}", "weight": "Bolder", "size": "large"},
             {"type": "TextBlock", "text": "Scan this seed with any authenticator app (e.g. Google Authenticator, Authy):"},
             {"type": "TextBlock", "text": f"🔑 Seed Base32: {seed_base32}", "wrap": True},
@@ -744,6 +762,7 @@ def iam_audit_card():
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4",
         "body": [
+            {"type": "TextBlock", "text": "🤖 TikoGen AWS Assistant", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "🧠 Audit IAM Security", "weight": "Bolder", "size": "Medium"},
             {"type": "TextBlock", "text": "This will list users without MFA, unused credentials, and admin access."}
         ],
@@ -756,3 +775,26 @@ def iam_audit_card():
 ]
 
     }
+
+def welcome_card():
+    return {
+        "type": "AdaptiveCard",
+        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+        "version": "1.4",
+        "body": [
+            {"type": "TextBlock", "text": "👋 Hello! I am TikoGen AI Assistant 🚀", "weight": "Bolder", "size": "Large"},
+            {"type": "TextBlock", "text": "I can help you manage your AWS Cloud 👇\n\n➡️ Simply click any button below or type a natural command like 'create EC2' or 'launch VPC'.", "wrap": True},
+            {"type": "TextBlock", "text": "Most Popular Actions:", "weight": "Bolder", "size": "Medium"},
+            {
+                "type": "ActionSet",
+                "actions": [
+                    {"type": "Action.Submit", "title": "🖥️ Create EC2", "data": {"action": "create_ec2"}},
+                    {"type": "Action.Submit", "title": "🪣 Create S3 Bucket", "data": {"action": "create_s3_bucket"}},
+                    {"type": "Action.Submit", "title": "🌐 Create VPC", "data": {"action": "create_vpc"}},
+                    {"type": "Action.Submit", "title": "👥 Create IAM User", "data": {"action": "create_iam_user"}},
+                    {"type": "Action.Submit", "title": "📋 List EC2 Instances", "data": {"action": "list_ec2"}}
+                ]
+            }
+        ]
+    }
+

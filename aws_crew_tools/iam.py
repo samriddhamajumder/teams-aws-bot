@@ -189,6 +189,7 @@ def create_virtual_mfa_device(username):
         return (False, None, str(e))
 
 
+
 def audit_iam():
     result = {
         "no_mfa_users": [],
@@ -211,6 +212,19 @@ def audit_iam():
             if "LastUsedDate" not in last_used:
                 result["unused_keys"].append({"user": uname, "key": key["AccessKeyId"]})
     return result
+
+def list_policies():
+    try:
+        iam = boto3.client("iam")
+        paginator = iam.get_paginator("list_policies")
+        policies = []
+        for page in paginator.paginate(Scope='AWS'):
+            policies.extend([p['PolicyName'] for p in page['Policies']])
+        return policies
+    except Exception as e:
+        logger.error(f"❌ Failed to list IAM policies: {e}")
+        return []
+
 
 # =========================== TOOL CLASSES ===========================
 

@@ -1,192 +1,274 @@
 # crew_handler.py
-# Orchestrates request handling using CrewAI agents and direct boto3 calls.
-# Decides when to prompt the user for more info via Adaptive Cards vs. executing an AWS operation.
-from crewai import Agent, Task, Crew, LLM
-from aws_crew_tools import ec2, s3, iam, vpc  # import our AWS boto3 modules
-from bot import adaptive_cards
-
-# Initialize the CrewAI LLM to use the local Ollama LLaMA3 model.
-# The model and endpoint are read from environment variables (or default values).
 import os
-os.environ.setdefault("OLLAMA_API_BASE", "http://192.168.0.177:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "ollama/llama3:7b")
-OLLAMA_URL = os.getenv("OLLAMA_URL", "http://192.168.0.177:11434")
-aws_llm = LLM(model=OLLAMA_MODEL, base_url=OLLAMA_URL)
+from crewai import Agent, Task, Crew, LLM
+from aws_crew_tools import ec2, s3, iam, vpc
+from bot import adaptive_cards
+from bot.nlp_engine import nlp_engine
 
-# Define a single agent that can handle AWS requests using provided tools.
+# Initialize the LLM (Ollama model)
+os.environ.setdefault("OLLAMA_API_BASE", "http://192.168.0.177:11434")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://192.168.0.177:11434")
+aws_llm = LLM(model=OLLAMA_MODEL, base_url=OLLAMA_URL, stream=False, timeout=90)
+
+import logging
+logger = logging.getLogger(__name__)
+
+conversation_state = None
+
 aws_agent = Agent(
-    role="AWS Assistant",
-    goal="Help the user manage AWS resources via natural language commands",
-    backstory=("You are an AWS assistant agent. You can create and manage cloud resources (EC2 instances, S3 buckets, IAM users, VPCs) "
-               "on behalf of the user. You have access to tools that perform AWS actions. Use them as needed to fulfill the user's request."),
+    role="AWS Cloud Assistant",
+    goal="Assist users with AWS resource management based on natural language commands.",
+    backstory=(
+        "You are a smart AWS assistant. You understand cloud infrastructure needs and can create, manage, or recommend AWS resources using specialized tools."
+    ),
     llm=aws_llm,
-    # Assign the AWS action tools to this agent (the agent can choose among these when reasoning).
     tools=[
         ec2.CreateEC2Tool(), ec2.ListEC2Tool(), ec2.TerminateEC2Tool(),
         s3.CreateBucketTool(), s3.ListS3BucketsTool(),
         vpc.CreateVPCTool(), vpc.ListVPCsTool(),
-        # IAM (Full Set)
-        iam.CreateIAMUserTool(),
-        iam.CreateIAMGroupTool(),
-        iam.AttachUserToGroupTool(),
-        iam.AttachPolicyTool(),
-        iam.DetachPolicyTool(),
-        iam.CreateInlinePolicyTool(),
-        iam.CreateIAMRoleTool(),
-        iam.DeleteIAMUserTool(),
-        iam.DeleteIAMGroupTool(),
-        iam.DeleteIAMRoleTool(),
-        iam.EnableMfaTool(),
-        iam.AuditIAMTool(),
+        iam.CreateIAMUserTool(), iam.CreateIAMGroupTool(), iam.AttachUserToGroupTool(),
+        iam.AttachPolicyTool(), iam.DetachPolicyTool(),
+        iam.CreateInlinePolicyTool(), iam.CreateIAMRoleTool(),
+        iam.DeleteIAMUserTool(), iam.DeleteIAMGroupTool(), iam.DeleteIAMRoleTool(),
+        iam.EnableMfaTool(), iam.AuditIAMTool(),
     ],
-    verbose=False  # set True to debug agent reasoning if needed
+    verbose=False
 )
 
-def process_user_message(user_message: str):
-    """
-    Process a user's message and determine an appropriate response.
-    - If additional input is required, return an Adaptive Card (as dict) to collect info.
-    - If it is a straightforward request, perform it directly or via CrewAI and return the result.
-    """
-    message_lower = user_message.lower()
+def process_user_message(user_message):
+    global conversation_state
 
-    # 1. Check if the message is a known simple command that requires more info via Adaptive Card.
-    if any(kw in message_lower for kw in ["create ec2", "launch ec2", "launch instance", "new ec2", "spin up ec2"]):
-        return adaptive_cards.ec2_launch_card()
-    if "create bucket" in message_lower or "create s3" in message_lower:
-        return adaptive_cards.s3_create_bucket_card()
-    if "create user" in message_lower or "new user" in message_lower:
-        return adaptive_cards.iam_user_creation_card()
-    if any(kw in message_lower for kw in ["create vpc", "new vpc", "provision vpc", "build vpc", "setup vpc"]):
-        return adaptive_cards.vpc_full_creation_card()
+    def reset_state():
+        global conversation_state
+        conversation_state = None
 
-    # 2. Check for direct simple queries/commands that we can handle with a single boto3 call (no LLM needed).
-    if message_lower.startswith("list"):
-        # List resources command
-        if "instances" in message_lower or "ec2" in message_lower:
-            # List EC2 instances
-            result = ec2.list_instances()
-            return f"**EC2 Instances:**\n{result}"
-        if "buckets" in message_lower or "s3" in message_lower:
-            result = s3.list_s3_buckets()
-            return f"**S3 Buckets:**\n{result}"
-        if "users" in message_lower or "iam" in message_lower:
-            result = iam.list_users()
-            return f"**IAM Users:**\n{result}"
-        if "vpcs" in message_lower or "vpc" in message_lower:
-            result = vpc.list_vpcs()
-            return f"**VPCs:**\n{result}"
-    if message_lower.startswith("terminate") or message_lower.startswith("delete"):
-        # Terminate an EC2 instance or delete other resource (requires an identifier).
-        # For simplicity, handle EC2 instance termination; other deletions can be added similarly.
-        if "instance" in message_lower:
-            # Expect an instance ID in the message (e.g., "terminate instance i-123abc")
-            parts = user_message.split()
-            # Find something that looks like an instance ID (starts with i-)
-            instance_id = None
-            for token in parts:
-                if token.startswith("i-"):
-                    instance_id = token
-                    break
-            if instance_id:
-                result = ec2.terminate_instance(instance_id=instance_id)
-                return f"**EC2 Instance Termination:** {result}"
-            else:
-                return "Please specify the EC2 instance ID to terminate (e.g., 'terminate instance i-xxxxxx')."
-            
-        # IAM Adaptive Card Fallbacks (submissions)
+    # Handle form data first
     if isinstance(user_message, dict):
-        action = user_message.get("action", "").lower()
+        reset_state()
+        return _handle_form_submission(user_message)
 
-        if action == "create_iam_user":
+    message_lower = user_message.lower().strip()
+    intent = nlp_engine.detect_intent(message_lower)
+
+    # ✅ ABSOLUTE FAST PATH for list commands (never use conversation_state here)
+    if message_lower.startswith("list"):
+        if "instance" in message_lower or "ec2" in message_lower:
+            reset_state()
+            return f"🖥️ **EC2 Instances:**\n{ec2.list_instances()}"
+        if "bucket" in message_lower or "s3" in message_lower:
+            reset_state()
+            return f"🪣 **S3 Buckets:**\n{s3.list_s3_buckets()}"
+        if "user" in message_lower or "iam" in message_lower:
+            reset_state()
+            return f"👥 **IAM Users:**\n{iam.list_users()}"
+        if "vpc" in message_lower:
+            reset_state()
+            return f"🌐 **VPCs:**\n{vpc.ListVPCsTool()._run()}"  # ✅ use tool
+        reset_state()
+
+    # ✅ Terminate instance
+    if message_lower.startswith("terminate") or message_lower.startswith("delete"):
+        if "instance" in message_lower:
+            parts = message_lower.split()
+            instance_id = next((word for word in parts if word.startswith("i-")), None)
+            if instance_id:
+                reset_state()
+                return ec2.terminate_instance(instance_id=instance_id)
+            return "❗ Please specify an EC2 instance ID (e.g., `terminate instance i-0abcd1234`)."
+
+    # ✅ Check for conversation states
+    if conversation_state == "awaiting_ec2_choice":
+        if "card" in message_lower:
+            reset_state()
+            return adaptive_cards.ec2_launch_card()
+        elif "default" in message_lower:
+            reset_state()
+            return ec2.CreateEC2Tool()._run(
+                instance_type="t2.micro",
+                key_name="demo-key",
+                security_group_ids=[],
+                subnet_id="",
+                user_data="",
+                ebs_volume_size=8,
+                ebs_volume_type="gp2",
+                enable_public_ip=True,
+                instance_name="DemoInstance"
+            )
+        else:
+            return "❓ Please reply with 'card' or 'default'."
+
+    if conversation_state == "awaiting_s3_choice":
+        if "card" in message_lower:
+            reset_state()
+            return adaptive_cards.s3_create_bucket_card()
+        elif "default" in message_lower:
+            reset_state()
+            return s3.CreateBucketTool()._run(bucket_name="demo-bucket-123456")
+        else:
+            return "❓ Please reply with 'card' or 'default'."
+
+    if conversation_state == "awaiting_vpc_choice":
+        if "card" in message_lower:
+            reset_state()
+            return adaptive_cards.vpc_full_creation_card()
+        elif "default" in message_lower:
+            reset_state()
+            return vpc.CreateVPCTool()._run(
+                vpc_name="DemoVPC",
+                cidr_block="10.0.0.0/16",
+                region_name="us-east-1",
+                enable_dns_support=True,
+                enable_dns_hostnames=True,
+                attach_igw=True,
+                create_nat=False,
+                subnet_requests=[],
+                custom_tags={},
+                route_table_mode="1"
+            )
+        else:
+            return "❓ Please reply with 'card' or 'default'."
+
+    if conversation_state == "awaiting_iam_choice":
+        if "card" in message_lower:
+            reset_state()
+            from aws_crew_tools.iam import list_policies
+            policies = list_policies()
+            return adaptive_cards.iam_create_user_card(policies)
+        elif "default" in message_lower:
+            reset_state()
             return iam.CreateIAMUserTool()._run(
-                username=user_message["username"],
-                policies=user_message.get("policies", "").split(","),
-                programmatic_access=user_message.get("programmatic_access") == "true",
-                console_access=user_message.get("console_access") == "true"
+                username="my_new_user_unique",
+                policies=["AmazonS3ReadOnlyAccess"],
+                programmatic_access=True,
+                console_access=False
             )
+        else:
+            return "❓ Please reply with 'card' or 'default'."
 
-        if action == "create_iam_group":
-            return iam.CreateIAMGroupTool()._run(
-                group_name=user_message["group_name"],
-                policies=user_message.get("policies", "").split(",")
-            )
+    # ✅ Trigger new conversations
+    if any(kw in message_lower for kw in [
+        "create ec2", "launch ec2", "spin up ec2", "new ec2", "create an ec2",
+        "need ec2", "ec2 instance", "start ec2", "setup ec2", "spin up an ec2",
+        "start new ec2", "deploy ec2", "provision ec2", "build ec2",
+        "initiate ec2", "bring up ec2", "launch an ec2", "ec2 for test",
+        "test ec2 instance", "make ec2 instance", "generate ec2", "add ec2",
+        "spawn ec2", "create aws ec2", "setup aws ec2", "create amazon ec2",
+        "start up ec2", "boot ec2", "run ec2"
+    ]):
+        conversation_state = "awaiting_ec2_choice"
+        return "👉 Do you want to launch EC2 instance via **Adaptive Card** or **Default settings**? (Reply: 'card' or 'default')"
 
-        if action == "attach_user_to_group":
-            return iam.AttachUserToGroupTool()._run(
-                username=user_message["username"],
-                group_name=user_message["group_name"]
-            )
+    if any(kw in message_lower for kw in [
+        "create s3 bucket", "new s3 bucket", "make s3 bucket", "setup s3 bucket",
+        "s3 bucket create", "launch s3 bucket", "provision s3 bucket",
+        "spin up s3 bucket", "need s3 bucket", "create s3", "create bucket",
+        "start s3 bucket", "generate s3 bucket", "add s3 bucket", "spawn s3 bucket",
+        "create aws s3 bucket", "setup aws s3 bucket", "create amazon s3 bucket",
+        "start up s3 bucket", "boot s3 bucket", "run s3 bucket"
+    ]):
+        conversation_state = "awaiting_s3_choice"
+        return "👉 Do you want to create S3 bucket via **Adaptive Card** or **Default settings**? (Reply: 'card' or 'default')"
 
-        if action == "attach_policy":
-            return iam.AttachPolicyTool()._run(
-                entity_type=user_message["entity_type"],
-                name=user_message["name"],
-                policy_name=user_message["policy_name"]
-            )
+    if any(kw in message_lower for kw in [
+        "create vpc", "new vpc", "setup vpc", "provision vpc", "launch vpc",
+        "spin up vpc", "build vpc", "initiate vpc", "start vpc", "need vpc",
+        "generate vpc", "add vpc", "spawn vpc", "create aws vpc", "setup aws vpc",
+        "create amazon vpc", "start up vpc", "boot vpc", "run vpc"
+    ]):
+        conversation_state = "awaiting_vpc_choice"
+        return "👉 Do you want to create VPC via **Adaptive Card** or **Default settings**? (Reply: 'card' or 'default')"
 
-        if action == "detach_policy":
-            return iam.DetachPolicyTool()._run(
-                entity_type=user_message["entity_type"],
-                name=user_message["name"],
-                policy_name=user_message["policy_name"]
-            )
+    if message_lower.strip() == "create iam user":
+        conversation_state = "awaiting_iam_choice"
+        return "👉 Do you want to create IAM user via **Adaptive Card** or **Default settings**? (Reply: 'card' or 'default')"
 
-        if action == "create_inline_policy":
-            return iam.CreateInlinePolicyTool()._run(
-                entity_type=user_message["entity_type"],
-                name=user_message["name"],
-                policy_name=user_message["policy_name"],
-                policy_json=user_message["policy_json"]
-            )
+    # ✅ NLP fallback
+    if intent == "instance_recommendation":
+        reset_state()
+        return nlp_engine.recommend_instance(message_lower)
 
-        if action == "create_iam_role":
-            return iam.CreateIAMRoleTool()._run(
-                role_name=user_message["role_name"],
-                trust_policy_json=user_message["trust_policy_json"],
-                policies=user_message.get("policies", "").split(",")
-            )
+    if intent == "knowledge_query":
+        reset_state()
+        return nlp_engine.knowledge_lookup(message_lower)
 
-        if action == "delete_iam_user":
-            return iam.DeleteIAMUserTool()._run(username=user_message["name"])
-
-        if action == "delete_iam_group":
-            return iam.DeleteIAMGroupTool()._run(group_name=user_message["name"])
-
-        if action == "delete_iam_role":
-            return iam.DeleteIAMRoleTool()._run(role_name=user_message["name"])
-
-        if action == "enable_mfa":
-            return iam.EnableMfaTool()._run(username=user_message["username"])
-
-        if action == "audit_iam":
-            return iam.AuditIAMTool()._run()
-
-
-    # 3. If not handled above, use the CrewAI agent to interpret and fulfill the request.
-    # We create a single Task for the agent with the user's message as the goal/description.
+    # ✅ FINAL fallback → CrewAI agent
+    reset_state()
     task = Task(
         description=user_message,
         agent=aws_agent,
         tools=aws_agent.tools,
-        expected_output="A concise result or answer for the user's request."
+        expected_output="Clear, concise AWS resource response.",
+        streaming_supported=True
     )
     crew = Crew(agents=[aws_agent], tasks=[task])
-    # Run the crew to let the agent process the request.
     try:
         output = crew.kickoff()
+        return str(output) if output else "🤔 I'm not sure how to handle that request."
     except Exception as e:
-        return f"Sorry, I couldn't complete the request due to an error: {e}"
-    
-    if "created" in str(output).lower() and "instance" in str(output).lower():
-    # Could be hallucinated — double-check if Adaptive Card wasn't triggered
-        return "Please use the EC2 creation form so I can collect instance details."
+        logger.exception("❌ CrewAI task failed")
+        return "❌ I faced an unexpected error while thinking. Please try again later or rephrase your request."
 
 
-    # The output from crew.kickoff() is expected to be the final answer from the agent (string).
-    if output:
-        return str(output)
-    else:
-        return "I'm not sure how to handle that request."
-    
-    
+def _handle_form_submission(form_data):
+    action = form_data.get("action", "").lower()
+
+    if action == "create_iam_user":
+        return iam.CreateIAMUserTool()._run(
+            username=form_data["username"],
+            policies=form_data.get("policies", "").split(","),
+            programmatic_access=form_data.get("programmatic_access") == "true",
+            console_access=form_data.get("console_access") == "true"
+        )
+
+    if action == "create_iam_group":
+        return iam.CreateIAMGroupTool()._run(
+            group_name=form_data["group_name"],
+            policies=form_data.get("policies", "").split(",")
+        )
+
+    if action == "attach_user_to_group":
+        return iam.AttachUserToGroupTool()._run(
+            username=form_data["username"],
+            group_name=form_data["group_name"]
+        )
+
+    if action == "create_inline_policy":
+        return iam.CreateInlinePolicyTool()._run(
+            entity_type=form_data["entity_type"],
+            name=form_data["name"],
+            policy_name=form_data["policy_name"],
+            policy_json=form_data["policy_json"]
+        )
+
+    if action == "create_iam_role":
+        return iam.CreateIAMRoleTool()._run(
+            role_name=form_data["role_name"],
+            trust_policy_json=form_data["trust_policy_json"],
+            policies=form_data.get("policies", "").split(",")
+        )
+
+    if action == "delete_iam_user":
+        return iam.DeleteIAMUserTool()._run(username=form_data["name"])
+
+    if action == "delete_iam_group":
+        return iam.DeleteIAMGroupTool()._run(group_name=form_data["name"])
+
+    if action == "delete_iam_role":
+        return iam.DeleteIAMRoleTool()._run(role_name=form_data["name"])
+
+    if action == "enable_mfa":
+        return iam.EnableMfaTool()._run(username=form_data["username"])
+
+    if action == "audit_iam":
+        return iam.AuditIAMTool()._run()
+
+    return "⚠️ Unknown form submission received."
+
+def fast_path(func):
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        if result:
+            return result
+        return None
+    return wrapper

@@ -1,0 +1,236 @@
+aws_services:
+  ec2: "Amazon EC2 (Elastic Compute Cloud) provides secure, resizable compute capacity in the cloud. It allows you to launch virtual servers (instances) of different configurations and operating systems, scale capacity up or down based on demand, and only pay for what you use. EC2 supports automation through APIs, integrates with other AWS services like S3 and VPC, and offers multiple instance families optimized for compute, memory, storage, and GPU workloads."
+  s3: "Amazon S3 (Simple Storage Service) is industry-leading object storage for any amount of data. It offers scalability, durability, and low-latency access. S3 supports a range of storage classes to optimize costs (Standard, Intelligent-Tiering, Glacier, etc.), versioning to protect against accidental deletion, encryption for security, and integration with AWS Lambda for serverless data processing."
+  vpc: "Amazon VPC (Virtual Private Cloud) lets you provision logically isolated sections of the AWS Cloud where you can launch AWS resources in a defined virtual network. You can define IP ranges, create subnets, configure route tables, gateways, and security groups to fully control traffic flow. VPC Peering and Transit Gateway allow connection across VPCs and accounts."
+ #iam: "AWS IAM (Identity and Access Management) securely manages access to AWS resources. IAM provides granular permissions using policies, user and group management, multi-factor authentication (MFA), access key rotation, and role delegation across accounts. It supports temporary credentials and works with AWS Organizations for multi-account governance."
+  cloudformation: "AWS CloudFormation enables infrastructure as code. It automates the provisioning of AWS resources like EC2 instances, databases, networking, and security policies using YAML or JSON templates. CloudFormation supports reusable modules (Stacks) and automatic rollback for failed deployments."
+  eks: "Amazon EKS (Elastic Kubernetes Service) is a fully managed Kubernetes control plane for deploying containerized applications at scale. It simplifies cluster management, automatically patches and scales your Kubernetes environment, integrates with AWS security and networking, and supports hybrid deployments with on-premise Kubernetes clusters."
+  rds: "Amazon RDS (Relational Database Service) makes it easy to set up, operate, and scale a relational database in the cloud. It supports popular engines like MySQL, PostgreSQL, MariaDB, Oracle, and SQL Server. Features include automated backups, patching, replication for high availability, and encryption at rest and in transit."
+  dynamodb: "Amazon DynamoDB is a fully managed NoSQL database that offers fast and predictable performance with seamless scaling. It supports key-value and document data models, multi-region replication, on-demand backup and restore, and integration with Lambda for event-driven applications."
+  lambda: "AWS Lambda lets you run code without provisioning or managing servers. It automatically scales and runs code in response to triggers from over 200 AWS and SaaS services. Lambda supports multiple runtimes (Node.js, Python, Java, Go, etc.) and charges only for compute time consumed."
+  cloudwatch: "Amazon CloudWatch monitors AWS resources and applications in real time. It provides metrics, logs, and alarms to detect anomalous behavior, optimize performance, and troubleshoot operational issues. CloudWatch supports custom dashboards and anomaly detection with machine learning capabilities."
+  sns: "Amazon SNS (Simple Notification Service) is a fully managed pub/sub messaging service for sending alerts, notifications, and messages to distributed systems, applications, and users via email, SMS, or Lambda triggers."
+  sqs: "Amazon SQS (Simple Queue Service) is a fully managed message queuing service that enables decoupling and scaling of microservices, distributed systems, and serverless applications. It supports standard and FIFO queues with exactly-once message delivery."
+  efs: "Amazon EFS (Elastic File System) provides simple, scalable, elastic NFS file storage for use with AWS Cloud services and on-premises resources. EFS automatically grows and shrinks as files are added and removed."
+  route53: "Amazon Route 53 is a highly available and scalable cloud Domain Name System (DNS) web service. It connects user requests to AWS infrastructure and external resources, supports domain registration, and offers routing policies for global traffic management."
+
+instance_recommendations:
+  test: "💡 For testing purposes, choose `t3.micro` (~$8/month). It provides low-cost compute resources for simple development or validation workloads."
+  dev: "💡 For development environments, `t3.small` or `t3.micro` offers the perfect balance between cost and compute resources."
+  prod: "💡 For production environments that require stable and consistent performance, go for `m5.large`, `m5.xlarge`, or `c5.large` depending on workload requirements and network throughput needs."
+  experiment: "💡 For experimental workloads, quick tests, or personal learning, use `t3.micro` to keep costs minimal."
+  staging: "💡 For staging or pre-production workloads that simulate production environments, `t3.medium` or `t3.large` gives optimal balance between price and performance."
+  data_processing: "💡 For data processing jobs requiring higher compute power, consider `m5.2xlarge` or `c5.2xlarge` instances."
+  machine_learning: "💡 For machine learning model training or inference workloads, use `g4dn.xlarge` or `p3.2xlarge` to leverage GPU acceleration."
+  high_memory: "💡 For memory-intensive applica tions such as in-memory databases or caching workloads, consider `r5.large`, `r5.xlarge`, or `x1e.xlarge`."
+  web_server: "💡 For small to medium scale web servers, `t3.medium` or `t3.large` instances are ideal."
+  batch_jobs: "💡 For batch processing workloads that require short bursts of high compute, `c5.large` or `c5.xlarge` work efficiently."
+knowledge_faq:
+- question: who are you
+  answer: I am TikoGen, your intelligent AWS assistant designed to help you manage cloud resources efficiently.
+
+- question: what do you do
+  answer: I assist in creating, managing, and monitoring AWS resources like EC2, S3, VPC, and IAM through natural language commands.
+
+- question: what services do you provide
+  answer: I offer assistance with EC2 instances, S3 buckets, VPC configurations, IAM user and role management, and more.
+
+- question: what is your speciality
+  answer: My specialty lies in simplifying AWS resource management by interpreting natural language inputs and executing corresponding actions.
+
+- question: what is ec2
+  answer: Amazon EC2 (Elastic Compute Cloud) provides scalable computing capacity in the AWS cloud, allowing users to run virtual servers.
+
+- question: what is s3
+  answer: Amazon S3 (Simple Storage Service) is an object storage service offering industry-leading scalability, data availability, and security.
+
+- question: what is vpc
+  answer: Amazon VPC (Virtual Private Cloud) enables you to launch AWS resources in a logically isolated virtual network.
+
+
+- question: how to create an ec2 instance
+  answer: You can create an EC2 instance by specifying the instance type, key pair, security groups, and other configurations.
+
+- question: how to create an s3 bucket
+  answer: To create an S3 bucket, provide a unique bucket name and select the appropriate region and settings.
+
+- question: how to set up a vpc
+  answer: Setting up a VPC involves defining the IP range, subnets, route tables, and security groups to control network access.
+
+- question: how to create an iam user
+  answer: Creating an IAM user requires specifying a username, assigning permissions, and configuring access types (programmatic or console).
+
+- question: what is tikogen
+  answer: TikoGen is an intelligent AWS assistant designed to streamline cloud resource management through natural language interactions. You can can check more on our website http://tikogen.com/ .
+
+- question: can you help me with aws
+  answer: Absolutely! I can assist you with various AWS services, including EC2, S3, VPC, and IAM configurations.
+
+- question: do you support adaptive cards
+  answer: Yes, I can present options using Adaptive Cards for a more interactive experience.
+
+- question: can you list my ec2 instances
+  answer: Certainly! I can retrieve and display a list of your current EC2 instances.
+
+- question: What is aws ec2 basics?
+  answer: AWS EC2 basics refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is aws s3 basics?
+  answer: AWS S3 basics refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is aws vpc basics?
+  answer: AWS VPC basics refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is aws iam basics?
+  answer: AWS IAM basics refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is crewai concepts?
+  answer: CrewAI concepts refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is ollama usage?
+  answer: Ollama usage refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is microsoft teams integration?
+  answer: Microsoft Teams integration refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is ai agent design?
+  answer: AI agent design refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is cloud security?
+  answer: Cloud security refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is cloud best practices?
+  answer: Cloud best practices refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is serverless computing?
+  answer: Serverless computing refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is infrastructure as code?
+  answer: Infrastructure as Code refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is cloud automation?
+  answer: Cloud automation refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is multi-cloud strategy?
+  answer: Multi-cloud strategy refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is aws billing?
+  answer: AWS billing refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is aws compliance?
+  answer: AWS compliance refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is chatbots in cloud?
+  answer: Chatbots in cloud refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is enterprise ai adoption?
+  answer: Enterprise AI adoption refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is cloud devops?
+  answer: Cloud DevOps refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is scalability strategies?
+  answer: Scalability strategies refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is disaster recovery in cloud?
+  answer: Disaster recovery in cloud refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is ai ethics?
+  answer: AI ethics refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is edge computing?
+  answer: Edge computing refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is data lake vs data warehouse?
+  answer: Data lake vs data warehouse refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is zero trust security?
+  answer: Zero Trust security refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is cost optimization?
+  answer: Cost optimization refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is saas vs paas vs iaas?
+  answer: SaaS vs PaaS vs IaaS refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is hybrid cloud models?
+  answer: Hybrid cloud models refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is prompt engineering?
+  answer: Prompt engineering refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is llms in cloud?
+  answer: LLMs in cloud refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: What is tikogen capabilities?
+  answer: TikoGen capabilities refers to concepts and tools used to manage, optimize, and secure modern cloud and AI-driven enterprise environments. TikoGen can help explain or automate tasks in this area.
+- question: CrewAI advanced usage
+  answer: TikoGen provides detailed support and capabilities for crewai advanced usage. Contact TikoGen team for more information.
+- question: Ollama local LLM setup
+  answer: TikoGen provides detailed support and capabilities for ollama local llm setup. Contact TikoGen team for more information.
+- question: Microsoft Teams bot deep integration
+  answer: TikoGen provides detailed support and capabilities for microsoft teams bot deep integration. Contact TikoGen team for more information.
+- question: TikoGen multi-cloud support
+  answer: TikoGen provides detailed support and capabilities for tikogen multi-cloud support. Contact TikoGen team for more information.
+- question: How to secure AWS accounts
+  answer: TikoGen provides detailed support and capabilities for how to secure aws accounts. Contact TikoGen team for more information.
+- question: What is IAM Identity Center
+  answer: TikoGen provides detailed support and capabilities for what is iam identity center. Contact TikoGen team for more information.
+- question: AWS Organizations best practices
+  answer: TikoGen provides detailed support and capabilities for aws organizations best practices. Contact TikoGen team for more information.
+- question: How to setup AWS Control Tower
+  answer: TikoGen provides detailed support and capabilities for how to setup aws control tower. Contact TikoGen team for more information.
+- question: What is a Landing Zone in cloud
+  answer: TikoGen provides detailed support and capabilities for what is a landing zone in cloud. Contact TikoGen team for more information.
+- question: How does Azure compare to AWS
+  answer: TikoGen provides detailed support and capabilities for how does azure compare to aws. Contact TikoGen team for more information.
+- question: What is Infrastructure Drift detection
+  answer: TikoGen provides detailed support and capabilities for what is infrastructure drift detection. Contact TikoGen team for more information.
+- question: Best AI cloud governance models
+  answer: TikoGen provides detailed support and capabilities for best ai cloud governance models. Contact TikoGen team for more information.
+- question: Explain cloud-native monitoring
+  answer: TikoGen provides detailed support and capabilities for explain cloud-native monitoring. Contact TikoGen team for more information.
+- question: Differences between CSPM vs SSPM
+  answer: TikoGen provides detailed support and capabilities for differences between cspm vs sspm. Contact TikoGen team for more information.
+- question: What is serverless orchestration
+  answer: TikoGen provides detailed support and capabilities for what is serverless orchestration. Contact TikoGen team for more information.
+- question: How to automate EC2 lifecycle
+  answer: TikoGen provides detailed support and capabilities for how to automate ec2 lifecycle. Contact TikoGen team for more information.
+- question: Guide for setting up Lambda triggers
+  answer: TikoGen provides detailed support and capabilities for guide for setting up lambda triggers. Contact TikoGen team for more information.
+- question: Benefits of hybrid cloud AI agents
+  answer: TikoGen provides detailed support and capabilities for benefits of hybrid cloud ai agents. Contact TikoGen team for more information.
+- question: TikoGen SaaS licensing options
+  answer: TikoGen provides detailed support and capabilities for tikogen saas licensing options. Contact TikoGen team for more information.
+- question: Ollama fine-tuning techniques
+  answer: TikoGen provides detailed support and capabilities for ollama fine-tuning techniques. Contact TikoGen team for more information.
+- question: How to scale CrewAI for enterprises
+  answer: TikoGen provides detailed support and capabilities for how to scale crewai for enterprises. Contact TikoGen team for more information.
+- question: What is multi-agent orchestration
+  answer: TikoGen provides detailed support and capabilities for what is multi-agent orchestration. Contact TikoGen team for more information.
+- question: Explain Azure Arc + AWS hybrid model
+  answer: TikoGen provides detailed support and capabilities for explain azure arc + aws hybrid model. Contact TikoGen team for more information.
+- question: What is self-healing cloud infrastructure
+  answer: TikoGen provides detailed support and capabilities for what is self-healing cloud infrastructure. Contact TikoGen team for more information.
+- question: Explain real-time event-driven cloud automation
+  answer: TikoGen provides detailed support and capabilities for explain real-time event-driven cloud automation. Contact TikoGen team for more information.
+- question: How to optimize AWS cost with AI
+  answer: TikoGen provides detailed support and capabilities for how to optimize aws cost with ai. Contact TikoGen team for more information.
+- question: Best practices for Teams bot deployment
+  answer: TikoGen provides detailed support and capabilities for best practices for teams bot deployment. Contact TikoGen team for more information.
+- question: How to manage secrets in AI bots
+  answer: TikoGen provides detailed support and capabilities for how to manage secrets in ai bots. Contact TikoGen team for more information.
+- question: What is generative AI in cloud
+  answer: TikoGen provides detailed support and capabilities for what is generative ai in cloud. Contact TikoGen team for more information.
+- question: What is autonomous cloud operations
+  answer: TikoGen provides detailed support and capabilities for what is autonomous cloud operations. Contact TikoGen team for more information.
+- question: How to detect anomalies with CloudWatch
+  answer: TikoGen provides detailed support and capabilities for how to detect anomalies with cloudwatch. Contact TikoGen team for more information.
+- question: Explain Edge AI deployment patterns
+  answer: TikoGen provides detailed support and capabilities for explain edge ai deployment patterns. Contact TikoGen team for more information.
+- question: What is low-code cloud automation
+  answer: TikoGen provides detailed support and capabilities for what is low-code cloud automation. Contact TikoGen team for more information.
+- question: Describe TikoGen AI Copilot role
+  answer: TikoGen provides detailed support and capabilities for describe tikogen ai copilot role. Contact TikoGen team for more information.
+- question: Difference between chatops vs AIOps
+  answer: TikoGen provides detailed support and capabilities for difference between chatops vs aiops. Contact TikoGen team for more information.
+- question: How to prevent cloud sprawl
+  answer: TikoGen provides detailed support and capabilities for how to prevent cloud sprawl. Contact TikoGen team for more information.
+- question: Explain just-in-time (JIT) cloud access
+  answer: TikoGen provides detailed support and capabilities for explain just-in-time (jit) cloud access. Contact TikoGen team for more information.
+- question: How to use LLM for cloud troubleshooting
+  answer: TikoGen provides detailed support and capabilities for how to use llm for cloud troubleshooting. Contact TikoGen team for more information.
+- question: Future of autonomous cloud agents
+  answer: TikoGen provides detailed support and capabilities for future of autonomous cloud agents. Contact TikoGen team for more information.
+- question: What is LLM memory in agents
+  answer: TikoGen provides detailed support and capabilities for what is llm memory in agents. Contact TikoGen team for more information.
+- question: How to design multi-tenant SaaS bot
+  answer: TikoGen provides detailed support and capabilities for how to design multi-tenant saas bot. Contact TikoGen team for more information.
+- question: Best CrewAI agent configurations
+  answer: TikoGen provides detailed support and capabilities for best crewai agent configurations. Contact TikoGen team for more information.
+- question: Role of RAG (retrieval augmented generation) in TikoGen
+  answer: TikoGen provides detailed support and capabilities for role of rag (retrieval augmented generation) in tikogen. Contact TikoGen team for more information.
+- question: How to run AI bots on Kubernetes
+  answer: TikoGen provides detailed support and capabilities for how to run ai bots on kubernetes. Contact TikoGen team for more information.
+- question: How to automate Terraform + cloud agents
+  answer: TikoGen provides detailed support and capabilities for how to automate terraform + cloud agents. Contact TikoGen team for more information.
+- question: Explain AI workflow pipelines in cloud
+  answer: TikoGen provides detailed support and capabilities for explain ai workflow pipelines in cloud. Contact TikoGen team for more information.
+- question: How to integrate bots with ITSM tools
+  answer: TikoGen provides detailed support and capabilities for how to integrate bots with itsm tools. Contact TikoGen team for more information.
+- question: What is conversational DevOps
+  answer: TikoGen provides detailed support and capabilities for what is conversational devops. Contact TikoGen team for more information.
+- question: Ollama vs OpenAI vs Azure OpenAI
+  answer: TikoGen provides detailed support and capabilities for ollama vs openai vs azure openai. Contact TikoGen team for more information.
+- question: Best TikoGen agent examples
+  answer: TikoGen provides detailed support and capabilities for best tikogen agent examples. Contact TikoGen team for more information.

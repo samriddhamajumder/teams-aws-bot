@@ -30,6 +30,8 @@ def estimate_vpc_cost(nat_enabled=False):
     nat_price = 32.40 if nat_enabled else 0.00  # Static estimate per month
     total = igw_price + nat_price
     return f"Estimated monthly cost: ${total:.2f} (IGW + NAT)"
+def list_vpcs():
+    return ListVPCsTool()._run()
 
 def create_vpc_advanced(vpc_name, cidr_block, region, enable_dns_support=False, enable_dns_hostnames=False, enable_igw=False, enable_nat=False, subnet_requests=None, custom_tags=None, route_table_mode="1"):
     """
