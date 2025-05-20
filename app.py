@@ -1,61 +1,56 @@
 # bot/app.py
-# Entry-point for the Teams bot application (Flask web service).
-# Sets up the Bot Framework adapter with Teams credentials and defines the message route.
-
 import os
 import asyncio
-from flask import Flask, request, Response, jsonify, make_response, render_template
-from botbuilder.core import BotFrameworkAdapter, BotFrameworkAdapterSettings
-from botbuilder.schema import Activity
-from dotenv import load_dotenv
-from bot.teams_bot import TeamsBot
 import logging
 import threading
 import time
+from flask import Flask, request, Response, jsonify, make_response, render_template, send_from_directory
+from dotenv import load_dotenv
+from botbuilder.core import BotFrameworkAdapter, BotFrameworkAdapterSettings
+from botbuilder.schema import Activity
+from bot.teams_bot import TeamsBot
 from bot.knowledge_base import load_knowledge_base
 
-#from botbuilder.integration.flask import FlaskAdapter
+# =================================================
+# ✅ ONLY ONE app = Flask(__name__) AT THE TOP
+app = Flask(__name__)
+# =================================================
 
-
-from bot.teams_bot import TeamsBot
-from flask import send_from_directory
-
-# Load environment variables from .env (Teams app ID and password, etc.)
+# Load env variables
 load_dotenv()
 APP_ID = os.getenv("BOT_APP_ID", "")
 APP_PW = os.getenv("BOT_APP_PASSWORD", "")
 
-logging.basicConfig(
-    filename='bot.log',
-    format='%(asctime)s %(levelname)s:%(name)s:%(message)s',
-    level=logging.INFO
-)
+# Logging
+logging.basicConfig(filename='bot.log',
+                    format='%(asctime)s %(levelname)s:%(name)s:%(message)s',
+                    level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize the Bot Framework adapter with the Microsoft Teams bot credentials.
+# Bot adapter
 adapter_settings = BotFrameworkAdapterSettings(APP_ID, APP_PW)
 adapter = BotFrameworkAdapter(adapter_settings)
-
-# Create the Teams bot instance (defined in teams_bot.py).
-from bot.teams_bot import TeamsBot
 bot = TeamsBot()
 
-# Create Flask application
-app = Flask(__name__)
-
-@app.route('/static/<path:filename>')
-def download_static(filename):
-    return send_from_directory('static', filename, as_attachment=True)
-
-# Error handler for the adapter (optional: logs errors and sends trace messages if needed)
+# Error handler
 async def on_error(context, error):
     print(f"Bot error: {error}")
     await context.send_activity("❌ I faced an unexpected error. Please try again later or contact support.")
 
 adapter.on_turn_error = on_error
 
+# ================= ROUTES =======================
+
+@app.route("/")
+def index():
+    return "✅ TikoGen bot backend is running."
+
+@app.route('/static/<path:filename>')
+def download_static(filename):
+    return send_from_directory('static', filename, as_attachment=True)
+
 @app.route("/api/messages", methods=["POST"])
-async def messages():
+def messages():
     if "application/json" in request.headers.get("Content-Type", ""):
         body = request.json
     else:
@@ -64,21 +59,21 @@ async def messages():
     activity = Activity().deserialize(body)
     auth_header = request.headers.get("Authorization", "")
 
-    async def turn_logic(turn_context):
-        await bot.on_turn(turn_context)
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
 
     try:
-        # Route the activity to the bot's OnTurn handler
-        response = await adapter.process_activity(activity, auth_header, bot.on_turn)
+        response = loop.run_until_complete(
+            adapter.process_activity(activity, auth_header, bot.on_turn)
+        )
         if response:
             return jsonify(response.body), response.status
         return Response(status=201)
     except Exception as e:
         logger.exception(f"Error processing activity: {e}")
         return jsonify({"error": str(e)}), 500
-    
-from flask import make_response
-
+    finally:
+        loop.close()
 
 @app.route("/upload", methods=["GET", "POST"])
 def upload_page():
@@ -151,9 +146,10 @@ def upload_page():
             """
             return wrap_html(html_error)
 
-    # GET request
     html = render_template("upload.html")
     return wrap_html(html)
+
+# ================= UTILITIES =====================
 
 def cleanup_pem_files():
     pem_folder = "./static/"
@@ -162,18 +158,9 @@ def cleanup_pem_files():
             if file.endswith(".pem"):
                 file_path = os.path.join(pem_folder, file)
                 file_age = time.time() - os.path.getmtime(file_path)
-                if file_age > 600:   # 600 sec = 10 mins
+                if file_age > 600:
                     os.remove(file_path)
-        time.sleep(300)  # check every 5 min
+        time.sleep(300)
 
 # Start background cleanup
 threading.Thread(target=cleanup_pem_files, daemon=True).start()
-
-
-
-if __name__ == "__main__":
-    threading.Thread(target=cleanup_pem_files, daemon=True).start()
-    print("🚀 Flask bot is running on http://localhost:3978")
-    app.run(host="0.0.0.0", port=3978, debug=True)
-    logger.info("TikoGen AI Cloud Assistant Flask bot started successfully ✅")
-
